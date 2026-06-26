@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableList;
 
 /** Implements a delayed list of something- stuff that can be postponed for later retrieval. A specialised ordered queue
@@ -80,5 +82,12 @@ public class DelayedList<E> {
     /** Removes *all* elements from this list. */
     public void clear() {
         elements.clear();
+    }
+
+    /** @return The inner list at the given delay index, or null if out of bounds. */
+    @Nullable
+    public List<E> getAt(int delay) {
+        if (delay < 0 || delay >= elements.size()) return null;
+        return elements.get(delay);
     }
 }

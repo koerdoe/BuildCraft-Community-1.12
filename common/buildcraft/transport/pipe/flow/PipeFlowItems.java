@@ -47,6 +47,7 @@ import buildcraft.api.transport.pipe.PipeEventItem;
 import buildcraft.api.transport.pipe.PipeEventStatement;
 import buildcraft.api.transport.pipe.PipeFlow;
 
+import buildcraft.lib.inventory.InjectableItemHandlerWrapper;
 import buildcraft.lib.inventory.ItemTransactorHelper;
 import buildcraft.lib.inventory.NoSpaceTransactor;
 import buildcraft.lib.misc.CapUtil;
@@ -264,6 +265,8 @@ public final class PipeFlowItems extends PipeFlow implements IFlowItems {
             return PipeApi.CAP_INJECTABLE.cast(this);
         } else if (capability == CapUtil.CAP_ITEM_TRANSACTOR) {
             return CapUtil.CAP_ITEM_TRANSACTOR.cast(ItemTransactorHelper.wrapInjectable(this, facing));
+        } else if (capability == CapUtil.CAP_ITEMS && facing != null) {
+            return CapUtil.CAP_ITEMS.cast(new InjectableItemHandlerWrapper(this, facing));
         } else {
             return super.getCapability(capability, facing);
         }
@@ -619,11 +622,10 @@ public final class PipeFlowItems extends PipeFlow implements IFlowItems {
     }
 
     private void addItemTryMerge(TravellingItem item) {
-        for (List<TravellingItem> list : items.getAllElements()) {
-            for (TravellingItem item2 : list) {
-                if (item2.mergeWith(item)) {
-                    return;
-                }
+        List<TravellingItem> bucket = items.getAt(item.timeToDest);
+        if (bucket != null) {
+            for (TravellingItem item2 : bucket) {
+                if (item2.mergeWith(item)) return;
             }
         }
         items.add(item.timeToDest, item);
